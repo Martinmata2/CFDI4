@@ -121,7 +121,7 @@ class Factura extends Query implements BasedatosInterface
             if (\count($resultado) > 0)
             {
                 $resultado[0]->detalles = $this->Factura->detalles->obtener($id, "DdeDocumento");
-                $resultado[0]->receptor = $CLIENTE->obtener($resultado[0]->FacReceptor); 
+                $resultado[0]->receptor = $CLIENTE->obtenerReceptor($resultado[0]->FacReceptor); 
                 return $resultado[0];                
             }
             else
@@ -134,10 +134,57 @@ class Factura extends Query implements BasedatosInterface
     {
         if($this->Factura->isUsuario($_SESSION["USR_ROL"]))
         {
+            $detalles = $datos["detalles"];
+            unset($datos["detalles"]);
+            $this->Factura->data = new FacturaD($datos);
+            if($this->validar() === true)
+            {
+                $this->conexion->begin_transaction();                
+                $id = $this->modificar($this->Tabla, $datos, $id, $campo);
+                if($id > 0)
+                {
+                    $this->Factura->detalles = new DFactura();
+                    $this->Factura->detalles->conexion = $this->conexion;
+                    $this->Factura->detalles->borrar($id, "DdeDocumento");                   
+                    foreach ($detalles as $detalle)
+                    {
+                        $detalle = new DFacturaD($detalle);
+                        $detalle->DdeDocumento = $id;
+                        $resultado = $this->Factura->detalles->agregar($detalle);
+                        if($resultado == 0)
+                        {
+                            $this->conexion->rollback();
+                            return 0;
+                        }
+                       
+                       
+                    }
+                    
+                    $this->conexion->commit();
+                    return $id;                                                  
+                }
+                else
+                {
+                    $this->conexion->rollback();
+                    return 0;
+                }
+            }
+            else return 0;
+        }
+        else return 0;
+    }
+    
+    
+    public function editarDirecto($datos, $id,$campo="FacID", $condicion="0", $usuario=0)
+    {
+        if($this->Factura->isUsuario($_SESSION["USR_ROL"]))
+        {
             return $this->modificar($this->Tabla, $datos, "$id", $campo, $usuario);
         }
         else return 0;
     }
+    
+   
 
     public function agregar($datos)
     {

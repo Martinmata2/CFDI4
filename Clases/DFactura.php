@@ -49,9 +49,9 @@ class DFactura extends Query implements BasedatosInterface
 
     public function borrar($id,$campo="DdeID",  $usuario=0)
     {
-        if($this->DFactura->isAdmin($_SESSION["USR_ROL"]))
-            return $this->modificar($this->Tabla, array("deleted"=>DDE_ELIMINADO), $id, $campo, $usuario);
-            else return 0;
+        if($this->DFactura->isUsuario($_SESSION["USR_ROL"]))
+            return $this->eliminar($this->Tabla, $id, $campo);
+        else return 0;
     }
 
     public function validar()
