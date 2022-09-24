@@ -7,6 +7,8 @@ use Clases\Utilidades\Validar;
 use CFDI4\Clases\Datos\FacturaD;
 use Clases\Catalogos\BasedatosInterface;
 use Clases\Catalogos\Clientes;
+use Clases\Utilidades\ArraytoObject;
+use CFDI4\Clases\Datos\DFacturaD;
 
 //Definiciones para estandarizar valores
 define("FAC_ELIMINADO", 1);
@@ -57,7 +59,7 @@ class Factura extends Query implements BasedatosInterface
 
     public function validar()
     {
-        $CLIENTE = new Clientes($this->conn, $this->base_datos);
+        $CLIENTE = new Clientes();
         //((validacion de campos))
         $this->mensaje = array();
         //FacMetodoPago
@@ -98,13 +100,14 @@ class Factura extends Query implements BasedatosInterface
         }
         else
         {
-            $this->mensaje["status"] = VTA_DATOS_VALIDOS;
+            $this->mensaje["status"] = FAC_DATOS_VALIDOS;
             return true;
         }
     }
 
     public function obtener($id = 0, $campo = "FacID", $condicion = "0")
     {
+        $CLIENTE = new Clientes();
         if($id <= 0)
         {
             $resultado = $this->consulta("*", $this->Tabla, "deleted <> ".FAC_ELIMINADO);
@@ -116,9 +119,13 @@ class Factura extends Query implements BasedatosInterface
         {
             $resultado = $this->consulta("*", $this->Tabla, "$campo = '$id'", $condicion);
             if (\count($resultado) > 0)
-                return $resultado[0];
-                else
-                    return 0;
+            {
+                $resultado[0]->detalles = $this->Factura->detalles->obtener($id, "DdeDocumento");
+                $resultado[0]->receptor = $CLIENTE->obtener($resultado[0]->FacReceptor); 
+                return $resultado[0];                
+            }
+            else
+                return 0;
         }
         return 0;
     }
@@ -136,10 +143,37 @@ class Factura extends Query implements BasedatosInterface
     {
         if($this->Factura->isUsuario($_SESSION["USR_ROL"]))
         {
+            if(isset($datos["detalles"]))
+            {
+                $detalles = $datos["detalles"];
+                unset($datos["detalles"]);
+            }
+            if(isset($datos["Detalles"]))
+            {
+                $detalles = $datos["Detalles"];
+                unset($datos["Detalles"]);
+            }
+            
             $this->Factura->data = new FacturaD($datos);
             if($this->validar() === true)
             {               
-                return $this->insertar($this->Tabla, $datos);
+                $this->conexion->begin_transaction();
+                $resultado = $this->insertar($this->Tabla, $datos);
+                if($resultado !== 0)
+                {
+                    foreach ($detalles as $detalle) 
+                    {
+                        $detalle = ArraytoObject::convertir($detalle, DFacturaD::class);
+                        $detalle->DdeDocumento = $resultado;
+                        $respuesta = $this->Factura->detalles->agregar($detalle);
+                        if($respuesta === 0)
+                            $this->conexion->rollback();
+                    }
+                    $this->conexion->commit();
+                    return $resultado;
+                }
+                else 
+                    $this->conexion->rollback();
             }
             else return 0;
         }

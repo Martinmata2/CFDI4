@@ -56,8 +56,30 @@ class DFactura extends Query implements BasedatosInterface
 
     public function validar()
     {
-        //((validacion de campos))
-        return true;       
+        $this->mensaje = array();
+        //FacMetodoPago
+        $validacion = (strlen($this->DFactura->data->DdeProProSer) != 8);
+        if($validacion == true)
+        {
+            $this->mensaje["venta_productos"] = "Todos los productos deben tener Proser";
+        }
+        //FacMetodoPago
+        $validacion = (strlen($this->DFactura->data->DdeUnidad) > 0);
+        if($validacion == true)
+        {
+            $this->mensaje["venta_productos"] = "Todos los productos deben tener unidad";
+        }
+        //FacCuenta        
+        if(count($this->mensaje) > 0)
+        {
+            $this->mensaje["status"] = DDE_DATOS_INVALIDOS;
+            return false;
+        }
+        else
+        {
+            $this->mensaje["status"] = DDE_DATOS_VALIDOS;
+            return true;
+        }
     }
 
     public function obtener($id = 0, $campo = "DdeID", $condicion = "0")
@@ -73,7 +95,7 @@ class DFactura extends Query implements BasedatosInterface
         {
             $resultado = $this->consulta("*", $this->Tabla, "$campo = '$id'", $condicion);
             if (\count($resultado) > 0)
-                return $resultado[0];
+                return $resultado;
                 else
                     return 0;
         }
@@ -91,7 +113,7 @@ class DFactura extends Query implements BasedatosInterface
 
     public function agregar($datos)
     {
-        if($this->DFactura->isAdmin($_SESSION["USR_ROL"]))
+        if($this->DFactura->isUsuario($_SESSION["USR_ROL"]))
         {
             $this->DFactura->data = new DFacturaD($datos);
             if($this->validar() === true)

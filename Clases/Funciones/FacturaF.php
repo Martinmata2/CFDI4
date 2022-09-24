@@ -27,6 +27,7 @@ class FacturaF extends PermisosBD implements FuncionInterface
         $this->base_datos = $base_datos;
         parent::__construct($base_datos);        
         $this->data = new FacturaD($datos);
+        $this->detalles = new DFactura();
     }
 
     public function truncate()
@@ -131,8 +132,15 @@ class FacturaF extends PermisosBD implements FuncionInterface
     private function pendingupdates()
     {
         //sql code para actualizar tabla
-        $update = "";                
-        return $update;
+        $update = "
+        IF NOT EXISTS( SELECT NULL FROM INFORMATION_SCHEMA.COLUMNS
+           WHERE table_name = 'clientes'
+             AND table_schema = '".$this->base_datos."'
+             AND column_name = 'CliRegimen')  THEN
+         ALTER TABLE `clientes` ADD `CliRegimen` varchar(20) COLLATE utf8_spanish2_ci;
+        END IF;
+        ";
+        return $update;  
     }
 }
 

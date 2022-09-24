@@ -73,7 +73,7 @@ else
 							<?php echo $CLIENTE->listaSelect(($factura === 0)?"0":$factura->FacReceptor); ?>
                         </select> <label for='FacReceptor'> Cliente</label>
                         <span class='input-group-text'> <a class='btn btn-primary box' id='buscarCliente'
-								href='<?php echo $inicio;?>Catalogos/Lista/Clientes.php'
+								href='<?php echo $inicio;?>Catalogos/Lista/Clientes.php?popup'
 							><i class='fa fa-search'></i></a>
 							</span>
 							<!--   queda pendiente agregar cliente desde aqui 
@@ -94,7 +94,7 @@ else
                         <div class='input-group form-floating mb-3'>
 							<input class='form-control' type='text' id='codigo' name='codigo' /> <label for='codigo'>Producto</label>
 							<span class='input-group-text'> <a class='btn btn-primary box' id='buscarProducto'
-								href='<?php echo $inicio;?>Catalogos/Lista/Productos.php'
+								href='<?php echo $inicio;?>Catalogos/Lista/Productos.php?popup'
 							><i class='fa fa-search'></i></a>
 							</span>
 						</div>
@@ -268,7 +268,7 @@ else
                        <?php if($factura !== 0)
                 		{
                 		   
-                		        foreach ($factura->Detalles as $detalle)
+                		        foreach ($factura->detalles as $detalle)
                 		        {           
                 		            $detalle = new DFacturaD($detalle);
                 		            echo
@@ -288,7 +288,7 @@ else
                                     "<td style='display:none;'><span style='display:none;' class='ProIEPS'>".$detalle->DdeIeps."</span></td>".
                 		            "</tr>";
                 		        }
-                		        unset($factura->Detalles);
+                		        unset($factura->detalles);
                 		        $venta_json = json_encode($factura, JSON_FORCE_OBJECT);                		  
                 			
                 		}?>
@@ -350,7 +350,136 @@ echo MPage::EndBlock("body");
 
 echo MPage::BeginBlock();
 ?>
-Aqui van los scripts que no estan incluidos en la pagina maestra que son esclusivos de esta pagina javascript
+<script type="text/javascript"
+    src="<?php echo $inicio;?>CFDI4/js/buscar.js?2"></script>
+<script type="text/javascript"
+    src="<?php echo $inicio;?>CFDI4/js/factura.js?2"></script>
+<script type="text/javascript"
+    src="<?php echo $inicio;?>CFDI4/js/archivar.js?2"></script>
+<script type="text/javascript"
+    src="<?php echo $inicio;?>CFDI4/js/validaciones.js?2"></script>
+<script type="text/javascript"
+    src="<?php echo $inicio;?>js/Dashboard/validar.js?2"></script>
+
+<script>
+$(document).ready(function()
+{
+	/********************  Codigo y Producto  *****************************/
+	
+    $("#codigo").keydown(function(e)
+    {
+	    if($("#FacReceptor").val() == 0)
+			$("#FacReceptor").notify("Selecciona Cliente","info");
+	    else
+	    {
+    		var codigo = " ";
+    	    var cantidad = 1;
+    		var key = window.event ? e.keyCode : e.which;
+    		if (key == 9 || key == 13)
+    	    {
+    	       	if($(this).val().length > 0)
+    	       	{
+    	 			e.preventDefault();
+    	 			if($(this).val().indexOf("*") > 0)
+    	 			{
+    				  	var partes = $(this).val().split("*");
+    				  	codigo = partes[1];
+    				  	cantidad = partes[0];
+    	 			}
+    	 			else
+    					codigo = $(this).val();
+    	 			var form_data = 
+    				{
+    					accion:"buscarproductoFactura",
+    					codigo:codigo,
+    					cantidad:cantidad,
+    					cliente: $("#FacReceptor").val(),
+    					token:$("#CSRF").val()
+    				}
+    				//Pos/buscar.js
+    				buscarFactura(form_data,null, <?php echo PRO_SUCCESS;?>, "OK", agregaProducto);
+              	}          	
+     		}
+	    }
+    });
+
+    $("#FacPeriodicidad").change(function()
+    {
+	    if($(this).val() != "0")
+	    {
+    	    $("#FacMeses").show("slow");
+    	    $("#FacYear").show("slow");
+	    }
+	    else
+	    {
+			$("#FacMeses").hide("slow");
+    	    $("#FacYear").hide("slow");
+	    }
+    });
+
+    $("#submitButtonVenta").click(function()
+    {
+	    if($("#FacReceptor").val() == "0")
+		    $.notify("Selecciona cliente", "warning");		    
+	    else
+	    {
+		    <?php if(isset($_GET["id"]))
+		    {?>
+    	    var form_data = 
+    	    {
+    		    accion:"actualizaventa",
+    		    venta:JSON.stringify(obtenerVenta()),
+    			token:'<?php echo $_SESSION["CSRF"]?>',
+	    		id:<?php echo $_GET["id"]?>
+    	    }
+    	    
+		    <?php }
+		    else 
+		    {?>
+		    var form_data = 
+	    	    {
+	    		    accion:"registrarventa",
+	    		    factura:obtenerVenta(),
+	    			token:'<?php echo $_SESSION["CSRF"]?>',			    		
+	    	    }
+	    	
+    	    <?php }?>
+    	    archivarFactura(form_data,$("#submitButtonVenta"),<?php echo FAC_SUCCESS;?>,"La Venta se archivo exitosamente",refrescarVentas);
+	    }
+		    	
+    });
+    $(document).on("click", ".cut", function()
+		{
+			$(this).parent().parent().remove();
+		});
+
+    
+});
+function agregaProducto(tr)
+{				
+	var ok = false;
+	if(tr.status == <?php echo PRO_SUCCESS?>)
+	{
+				 	
+			var cantidad = 1;	   				
+			var emptyColumn = document.createElement('tr');
+			emptyColumn.innerHTML = tr.html; 								
+    		document.querySelector('#venta_productos tbody').appendChild(emptyColumn);	 		   						
+    		$(emptyColumn).find(".ProCantidad").trigger("click");	 		   						
+    		$("#venta_productos tbody tr").last().focus();
+    		$(".ProPrecio").last().focus();		 		   											 									
+	 }
+	$.each(tr, function(i,value)
+	{
+		$("#"+i).notify(value,"info");		
+	});		
+}
+
+function refrescarVentas(respuesta)
+{
+    window.location.href = "?id="+respuesta+"&popup";    
+}
+</script>
 <?php 
 echo MPage::EndBlock("foot_script");
 MPage::Render("include/", "Forma.php");
