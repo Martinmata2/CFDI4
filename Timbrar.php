@@ -31,12 +31,16 @@ if(isset($_GET["factura"]))
                 unset($factura->detalles[$key]->DdeID);
             }
             
-           
+            if(isset($_SESSION["USR_USUARIO_PAC"]) &&  strlen($_SESSION["USR_USUARIO_PAC"]) == 0)
+            {
+                $_SESSION["USR_USUARIO_PAC"] = "7df4cc81e65d0c691370f104946786a6";
+                $_SESSION["USR_CLAVE_PAC"] = "7df4cc81e65d0c691370f104946786a6";
+            }
             $resultado = $MOVIMIENTO->__call(
                 "subirCarta", 
                 array(
-                    "nombre" => "7df4cc81e65d0c691370f104946786a6",//TODO obtener de base de datos
-                    "clave" => "7df4cc81e65d0c691370f104946786a6",//TODO obtener de base de datos
+                    "nombre" => $_SESSION["USR_USUARIO_PAC"],//TODO obtener de base de datos
+                    "clave" => $_SESSION["USR_CLAVE_PAC"] ,//TODO obtener de base de datos
                 "factura" => $factura,"cliente" => $cliente));    
             if(is_array($resultado))
             {
