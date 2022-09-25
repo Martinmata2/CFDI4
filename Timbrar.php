@@ -54,7 +54,7 @@ if(isset($_GET["factura"]))
                         ),
                             $_GET["facura"], "FacID");
                    
-                    header("Location:carta_pdf.php?id=".$_GET["carta"]);
+                    header("Location:factura_pdf.php?id=".$_GET["carta"]);
                     exit();
                 }
                 else 
