@@ -1,6 +1,6 @@
 <?php
 
-namespace Marve\CFDI\Core;
+namespace Marve\CFDI4\Core;
 
 use stdClass;
 

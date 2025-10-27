@@ -1,11 +1,11 @@
 {
-	"name": "marve/cfdi",
+	"name": "marve/cfdi4",
 	"description": "Simple mvc framework",
 	"type": "library",
 	"license": "MIT",
 	"autoload": {
 		"psr-4": {
-			"Marve\\CFDI\\": "src/"
+			"Marve\\CFDI4\\": "src/"
 		}
 	},
 	"authors": [

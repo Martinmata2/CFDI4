@@ -1,7 +1,7 @@
 <?php
-namespace Marve\CFDI\V4_0;
+namespace Marve\CFDI4\V4_0;
 
-use Marve\CFDI\Core\Documento;
+use Marve\CFDI4\Core\Documento;
 use stdClass;
 
 class Pagos extends Documento

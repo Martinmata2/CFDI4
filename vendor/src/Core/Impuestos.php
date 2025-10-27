@@ -1,6 +1,6 @@
 <?php
 
-namespace Marve\CFDI\Core;
+namespace Marve\CFDI4\Core;
 
 class Impuestos extends Conceptos
 {
