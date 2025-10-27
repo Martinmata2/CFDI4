@@ -6,5 +6,5 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Marve\\CFDI4\\' => array($baseDir . '/src'),
+    'Marve\\CFDI\\' => array($baseDir . '/src'),
 );

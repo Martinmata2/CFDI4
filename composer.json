@@ -5,7 +5,7 @@
 	"license": "MIT",
 	"autoload": {
 		"psr-4": {
-			"Marve\\CFDI4\\": "src/"
+			"Marve\\CFDI\\": "src/"
 		}
 	},
 	"authors": [
