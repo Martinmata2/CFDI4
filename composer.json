@@ -1,0 +1,19 @@
+{
+	"name": "marve/cfdi",
+	"description": "Simple mvc framework",
+	"type": "library",
+	"license": "MIT",
+	"autoload": {
+		"psr-4": {
+			"Marve\\CFDI\\": "src/"
+		}
+	},
+	"authors": [
+		{
+			"name": "martin mata",
+			"email": "martinmata2@msn.com"
+		}
+	],
+	"minimum-stability": "stable",
+	"require": {}
+}
