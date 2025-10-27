@@ -1,5 +1,5 @@
 {
-	"name": "marve/cfdi4",
+	"name": "marve/cfdi",
 	"description": "Simple mvc framework",
 	"type": "library",
 	"license": "MIT",

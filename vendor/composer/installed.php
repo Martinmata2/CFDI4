@@ -5,18 +5,18 @@
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => 'fcc74ada7e01fc7ef9dd23be51e7f1ed222e37a8',
-        'name' => 'marve/cfdi4',
+        'reference' => 'a9c66456ed9f96848d0a97e6c46fd8f777140bf1',
+        'name' => 'marve/cfdi',
         'dev' => true,
     ),
     'versions' => array(
-        'marve/cfdi4' => array(
+        'marve/cfdi' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => 'fcc74ada7e01fc7ef9dd23be51e7f1ed222e37a8',
+            'reference' => 'a9c66456ed9f96848d0a97e6c46fd8f777140bf1',
             'dev_requirement' => false,
         ),
     ),
